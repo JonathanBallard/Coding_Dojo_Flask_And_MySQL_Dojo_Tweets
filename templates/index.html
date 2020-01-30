@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+    initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <script defer type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <title>Login & Registration</title>
+</head>
+<body>
+
+
+<div class="container bg-dark text-light">
+
+    
+<h1>Login & Registration</h1>
+
+
+
+
+<h3>Registration</h3>
+    <form class="form-group" action="/register" method="POST">
+        <label for="first_name">First Name:</label>
+        <input class="form-control" type="text" name="first_name">
+
+        <label for="last_name">Last Name:</label>
+        <input class="form-control" type="text" name="last_name">
+
+
+        <label for="email">Email:</label>
+        <input class="form-control" type="email" name="email">
+
+        <label for="password">Password:</label>
+        <input class="form-control" type="password" name="password">
+
+        <label for="passwordConfirm">Confirm Password:</label>
+        <input class="form-control" type="password" name="passwordConfirm">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <hr>
+        <input type="hidden" name="formType" value="register">
+        <input type="submit" value="Register!">
+    </form>
+
+
+
+
+
+
+
+    <h3>Login</h3>
+    <form class="form-group" action="/login" method="POST">
+
+        <label for="emailLogin">Email:</label>
+        <input class="form-control" type="email" name="emailLogin">
+
+        <label for="passwordLogin">Password:</label>
+        <input class="form-control" type="password" name="passwordLogin">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <hr>
+        <input type="hidden" name="formType" value="login">
+        <input type="submit" value="Log In!">
+    </form>
+</div>
+
+
+    
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
