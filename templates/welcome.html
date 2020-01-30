@@ -24,15 +24,15 @@
 <body>
 
 
-    <div class="wrapper container">
-
-        <h1>Welcome {{ session['user_id'] }}!</h1>
-        <form class="form-group" action="/destroy" method="POST">
-            <input type="hidden" name="formType" value="logout">
-            <input type="submit" value="Log Out!">
-        </form>
-        <hr>
     
+    <h1>Welcome {{ session['user_id'] }}!</h1>
+    <form class="form-group" action="/destroy" method="POST">
+        <input type="hidden" name="formType" value="logout">
+        <input type="submit" value="Log Out!">
+    </form>
+    <hr>
+    
+    <div class="wrapper container">
     
         <form class="form-group" action="/tweets/create" method="POST">
     
@@ -63,7 +63,15 @@
                 <li>
                     <h4>{{tweet['created_at']}}</h4>
                     <p>{{tweet['tweet']}}</p>
-
+                    <form class="form-group" action="/tweets/{{tweet['id']}}/like" method="POST">
+                        <input type="hidden" name='like' value={{tweet['id']}}>
+                        <input type="submit" value="Like" name='likeTweet' class="btn btn-success">
+                    </form>
+                    <h6>likes: {{likesNum}}</h6>
+                    <form class="form-group" action="/tweets/{{tweet['id']}}/delete" method="POST">
+                        <input type="hidden" name="delete" value={{tweet['id']}}>
+                        <input type="submit" value="Delete" name='deleteTweet' class="btn btn-danger">
+                    </form>
                 </li>
     
             {% endfor %}

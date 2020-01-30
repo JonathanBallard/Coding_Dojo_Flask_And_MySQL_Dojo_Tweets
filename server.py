@@ -147,14 +147,21 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    if request.method == 'GET' or not session['id']:
+
+    if not session['id']:
         return redirect('/')
 
     # return list of tweets for welcome.html
     mysql = connectToMySQL("dojo_tweets")
-    tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")
+    tweetList = mysql.query_db(f"SELECT * FROM tweets")
+    # tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")  #ONLY SHOW TWEETS THAT PERSON MADE
 
-    return render_template('welcome.html', tweetList = tweetList)
+    # get number of likes to display per tweet
+    mysql = connectToMySQL("dojo_tweets")
+    likesNum = mysql.query_db("SELECT COUNT(id) FROM likes GROUP BY tweet_id")
+    print('LIKESNUM=======55555555555555555555555555=====', likesNum)
+
+    return render_template('welcome.html', tweetList = tweetList, likesNum = likesNum)
 
 
 
@@ -192,14 +199,39 @@ def tweet_create():
 
 
 
+# delete route here
+@app.route('/tweets/<id>/delete', methods=['POST'])
+def delete_tweet(id):
+    print('DELETE ID----------*******************************************', id)
+    mysql = connectToMySQL("dojo_tweets")
+    tweet_delete = mysql.query_db(f"DELETE FROM tweets WHERE id={id};")
+
+
+    return redirect('/dashboard')
+    
 
 
 
 
 
 
+# add like route here
+@app.route('/tweets/<id>/like', methods=['POST'])
+def like_tweet(id):
+    print('USER ID----------*******************************************', userId)
+    print('TWEET ID----------*******************************************', id)
+
+    userId = session['id']
+    mysql = connectToMySQL("dojo_tweets")
+    tweet_like = mysql.query_db(f"INSERT INTO likes (user_id, tweet_id) VALUES({userId}, {id});")
 
 
+
+
+
+    return redirect('/dashboard')
+
+    # add like to DB
 
 
 
