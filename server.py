@@ -91,7 +91,7 @@ def register():
     else:
         return redirect('/')
 
-@app.route('/destroy', methods=['POST'])
+@app.route('/destroy', methods=['POST','GET'])
 def destroy():
     session.clear()
     return redirect('/')
@@ -123,8 +123,8 @@ def login():
     # userId
     mysql = connectToMySQL("dojo_tweets")
     query = "SELECT id FROM users WHERE email = %(em)s;"
-    session['id'] = mysql.query_db(query, data)
-    
+    idDict = mysql.query_db(query, data)
+    session['id'] = idDict[0]['id']
     # print('login_id ***********************************', login_id[0]['password'])
     # if not str(email) in emailDB:
     if not [emailCheck for emailCheck in emailDB if emailCheck['email'] == email]:
@@ -147,20 +147,30 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('welcome.html')
+    if request.method == 'GET' or not session['id']:
+        return redirect('/')
+
+    # return list of tweets for welcome.html
+    mysql = connectToMySQL("dojo_tweets")
+    tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")
+
+    return render_template('welcome.html', tweetList = tweetList)
 
 
 
 
-@app.route('/tweets/create', methods=['POST'])
+@app.route('/tweets/create', methods=['POST', 'GET'])
 def tweet_create():
 
+    if request.method == 'GET' or not session['id']:
+        return redirect('/')
+
     # validate tweets here
-    incomingTweet = request.form('tweet')
-    isValid = true
+    incomingTweet = request.form['tweet']
+    isValid = True
 
     if len(incomingTweet) > 255 or len(incomingTweet) < 1:
-        isValid = false
+        isValid = False
         flash("Invalid Tweet, must be between 1 and 255 characters")
 
 
@@ -171,12 +181,10 @@ def tweet_create():
             'id': session['id'],
             'tweet': incomingTweet
         }
+        print('SESSION ID----------*******************************************', session['id'])
+        print('TWEET----------*******************************************', incomingTweet)
         query = "INSERT INTO tweets (tweet, user_id) VALUES(%(tweet)s, %(id)s);"
         tweet_add = mysql.query_db(query, data)
-
-
-
-    # return list of tweets for welcome.html
 
 
     return redirect('/dashboard')

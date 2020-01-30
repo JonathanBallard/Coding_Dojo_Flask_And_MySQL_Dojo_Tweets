@@ -37,22 +37,37 @@
         <form class="form-group" action="/tweets/create" method="POST">
     
             <h3>Write a Tweet:</h3>
-    
-    
             <textarea name="tweet" cols="30" rows="10" placeholder="tweet"></textarea>
     
             <input type="hidden" name="formType" value="createTweet">
             <input class="btn btn-primary" type="submit" value="Tweet">
         </form>
 
-        
-        <!-- display tweet validation flashes here -->
 
+        <!-- display tweet validation flashes here -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         <!-- list of tweets here -->
-            <h2>Your Feed:</h2>
+        <h2>Your Feed:</h2>
 
+        <ul>
+            {% for tweet in tweetList|reverse %}
+                <li>
+                    <h4>{{tweet['created_at']}}</h4>
+                    <p>{{tweet['tweet']}}</p>
 
+                </li>
+    
+            {% endfor %}
+        </ul>
 
 
 
