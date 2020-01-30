@@ -11,7 +11,7 @@ bcrypt = Bcrypt(app)     # we are creating an object called bcrypt,
 
 @app.route('/')
 def index():
-    mysql = connectToMySQL("email_registration")
+    mysql = connectToMySQL("dojo_tweets")
     users = mysql.query_db("SELECT * FROM users;")
     print(users)
     return render_template("index.html", all_users = users)
@@ -19,7 +19,7 @@ def index():
 
 @app.route('/register', methods=['POST'])
 def register():
-    mysql = connectToMySQL("email_registration")
+    mysql = connectToMySQL("dojo_tweets")
     users = mysql.query_db("SELECT * FROM users;")
     print(users)
     EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$') 
@@ -73,7 +73,7 @@ def register():
     
     
     if isValid == True:
-        mysql = connectToMySQL("email_registration")
+        mysql = connectToMySQL("dojo_tweets")
         query = "INSERT INTO users (first_name, last_name, email, password) VALUES (%(fname)s, %(lname)s, %(email)s, %(pw)s);"
         data = {
             "fname": firstName,
@@ -83,7 +83,7 @@ def register():
         }
         new_user_id = mysql.query_db(query, data)
 
-        mysql = connectToMySQL("email_registration")
+        mysql = connectToMySQL("dojo_tweets")
         users = mysql.query_db("SELECT * FROM users;")
         print(users)
         flash('Success!')
@@ -98,7 +98,7 @@ def destroy():
 
 @app.route('/login', methods=['POST'])
 def login():
-    mysql = connectToMySQL("email_registration")
+    mysql = connectToMySQL("dojo_tweets")
     emailDB = mysql.query_db("SELECT email FROM users;")
     print(emailDB)
     form = request.form['formType']
@@ -109,15 +109,21 @@ def login():
         "em": email
     }
 
-    mysql = connectToMySQL("email_registration")
+    mysql = connectToMySQL("dojo_tweets")
     query = "SELECT password FROM users WHERE email= %(em)s;"
     login_id = mysql.query_db(query, data)
     
     
     # userId
-    mysql = connectToMySQL("email_registration")
+    mysql = connectToMySQL("dojo_tweets")
     query = "SELECT first_name FROM users WHERE email = %(em)s;"
     userId = mysql.query_db(query, data)
+
+
+    # userId
+    mysql = connectToMySQL("dojo_tweets")
+    query = "SELECT id FROM users WHERE email = %(em)s;"
+    session['id'] = mysql.query_db(query, data)
     
     # print('login_id ***********************************', login_id[0]['password'])
     # if not str(email) in emailDB:
@@ -139,10 +145,56 @@ def login():
             return redirect('/dashboard')
 
 
-@app.route('/dashboard', methods=['POST'])
+@app.route('/dashboard')
 def dashboard():
-
-    
     return render_template('welcome.html')
+
+
+
+
+@app.route('/tweets/create', methods=['POST'])
+def tweet_create():
+
+    # validate tweets here
+    incomingTweet = request.form('tweet')
+    isValid = true
+
+    if len(incomingTweet) > 255 or len(incomingTweet) < 1:
+        isValid = false
+        flash("Invalid Tweet, must be between 1 and 255 characters")
+
+
+    if isValid:
+        # enter tweet into database
+        mysql = connectToMySQL("dojo_tweets")
+        data = {
+            'id': session['id'],
+            'tweet': incomingTweet
+        }
+        query = "INSERT INTO tweets (tweet, user_id) VALUES(%(tweet)s, %(id)s);"
+        tweet_add = mysql.query_db(query, data)
+
+
+
+    # return list of tweets for welcome.html
+
+
+    return redirect('/dashboard')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
