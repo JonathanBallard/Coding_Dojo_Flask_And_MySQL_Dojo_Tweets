@@ -170,6 +170,11 @@ def dashboard():
     tweetList = mysql.query_db(f"SELECT * FROM tweets")
     # tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")  #ONLY SHOW TWEETS THAT PERSON MADE
 
+    
+    # tweetList = mysql.query_db(f"SELECT tweets.id, tweets.tweet, tweets.created_at, tweets.updated_at, tweets.user_id, follows.followed_user_id, follows.follower_user_id FROM tweets JOIN users ON tweets.user_id = users.id JOIN follows ON users.id = follows.user_id WHERE tweets.user_id IN {followed_users} GROUP BY tweets.id")
+
+
+
     # get number of likes to display per tweet
     mysql = connectToMySQL("dojo_tweets")
     likesNum = mysql.query_db("SELECT COUNT(id) FROM likes GROUP BY tweet_id")
@@ -240,7 +245,7 @@ def update_tweet(id):
         'tweet': tweet,
         'id': id
     }
-    query = "UPDATE tweets SET tweet = %(tweet)s WHERE user_id=%(id)s;"
+    query = "UPDATE tweets SET tweet = %(tweet)s WHERE id=%(id)s;"
 
     if len(request.form['tweet']) < 1 or len(request.form['tweet'] > 255):
         flash('Invalid tweet length')
@@ -257,20 +262,39 @@ def update_tweet(id):
 # add like route here
 @app.route('/tweets/<id>/like', methods=['POST'])
 def like_tweet(id):
-    print('USER ID----------*******************************************', userId)
-    print('TWEET ID----------*******************************************', id)
+    
 
+    # add like to DB
     userId = session['id']
     mysql = connectToMySQL("dojo_tweets")
     tweet_like = mysql.query_db(f"INSERT INTO likes (user_id, tweet_id) VALUES({userId}, {id});")
+    print('USER ID----------*******************************************', userId)
+    print('TWEET ID----------*******************************************', id)
+    return redirect('/dashboard')
 
 
 
+# add users route here
+@app.route('/users')
+def get_users():
 
+    mysql = connectToMySQL("dojo_tweets")
+    users = mysql.query_db("SELECT * FROM users;")
+
+    return render_template('/users.html',  users = users)
+
+# add follow to DB
+
+@app.route('/users/<id>/follow')
+def follow_user(id):
+
+    mysql = connectToMySQL("dojo_tweets")
+    intId = int(id)
+    follow = mysql.query_db(f"INSERT INTO follows (followed_user_id, follower_user_id, user_id) VALUES ({intId}, {session['id']}, {session['id']} );")
+    print('FOLLOW**********************************************************', )
 
     return redirect('/dashboard')
 
-    # add like to DB
 
 
 
