@@ -36,39 +36,39 @@ def register():
 
     if len(firstName) <= 0:
         isValid = False
-        flash('Please enter a first name', 'name')
+        flash('Please enter a first name', 'register')
 
     if not firstName.isalpha():
         isValid = False
-        flash('Please enter a first name using only alphabetic characters', 'name')
+        flash('Please enter a first name using only alphabetic characters', 'register')
 
     if len(lastName) <= 0:
         isValid = False
-        flash('Please enter a last name', 'name')
+        flash('Please enter a last name', 'register')
 
     if not lastName.isalpha():
         isValid = False
-        flash('Please enter a last name using only alphabetic characters', 'name')
+        flash('Please enter a last name using only alphabetic characters', 'register')
 
     if len(email) <= 3:
         isValid = False
-        flash('Please enter an email address', 'email')
+        flash('Please enter an email address', 'register')
 
     if not EMAIL_REGEX.match(request.form['email']):
         isValid = False
-        flash("Invalid email address!", 'email')
+        flash("Invalid email address!", 'register')
 
     if not PW_REGEX.match(request.form['password']):
         isValid = False
-        flash("Invalid password! Minimum 8 characters, 1 number, and 1 special character", 'password')
+        flash("Invalid password! Minimum 8 characters, 1 number, and 1 special character", 'register')
 
     if len(password) <= 4:
         isValid = False
-        flash('Please enter a valid password (minimum 5 characters)', 'password')
+        flash('Please enter a valid password (minimum 5 characters)', 'register')
 
     if not password == conPassword:
         isValid = False
-        flash('Password doesnt match confirm password', 'password')
+        flash('Password doesnt match confirm password', 'register')
 
     
     
@@ -109,6 +109,17 @@ def login():
         "em": email
     }
 
+    # check emails for request.form['email']
+    mysql = connectToMySQL("dojo_tweets")
+    query = "SELECT email FROM users WHERE email = %(em)s;"
+    emailCheckDB = mysql.query_db(query, data)
+
+    # check if emailCheckDB is populated
+    if len(emailCheckDB) == 0:
+        emailCheckDBFull = False
+    else:
+        emailCheckDBFull = True
+
     mysql = connectToMySQL("dojo_tweets")
     query = "SELECT password FROM users WHERE email= %(em)s;"
     login_id = mysql.query_db(query, data)
@@ -124,18 +135,21 @@ def login():
     mysql = connectToMySQL("dojo_tweets")
     query = "SELECT id FROM users WHERE email = %(em)s;"
     idDict = mysql.query_db(query, data)
-    session['id'] = idDict[0]['id']
+
+    if len(idDict) > 0:
+        session['id'] = idDict[0]['id']
+        
     # print('login_id ***********************************', login_id[0]['password'])
     # if not str(email) in emailDB:
-    if not [emailCheck for emailCheck in emailDB if emailCheck['email'] == email]:
-        print('EmailCheck ****************************', email)
-        flash('Email not in our database', 'email')
+    if not emailCheckDBFull:
+        print('EmailCheck ****************************', 'email')
+        flash('Email not in our database', 'login')
         return redirect('/')
     else:
         hashCheck = bcrypt.check_password_hash(login_id[0]['password'], password)
         print('hashCheck ***************************************', hashCheck)
         if not hashCheck:
-            flash('Invalid Password', password)
+            flash('Invalid Password', 'login')
             return redirect('/')
         else:
             flash("Successfully Logged In!")
@@ -178,7 +192,7 @@ def tweet_create():
 
     if len(incomingTweet) > 255 or len(incomingTweet) < 1:
         isValid = False
-        flash("Invalid Tweet, must be between 1 and 255 characters")
+        flash("Invalid Tweet, must be between 1 and 255 characters", 'tweet')
 
 
     if isValid:

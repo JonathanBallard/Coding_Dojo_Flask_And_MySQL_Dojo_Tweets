@@ -26,7 +26,7 @@
 <div class="container bg-dark text-light">
 
     
-<h1>Login & Registration</h1>
+<h1 class="mt-5">Login & Registration</h1>
 
 
 
@@ -49,19 +49,22 @@
         <label for="passwordConfirm">Confirm Password:</label>
         <input class="form-control" type="password" name="passwordConfirm">
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class=flashes>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
+        {% with errors = get_flashed_messages(category_filter=["register"]) %}
+        {% if errors %}
+        <div class="alert-message block-message error">
+        <a class="close" href="#">×</a>
+        <ul>
+            {%- for msg in errors %}
+            <li>{{ msg }}</li>
+            {% endfor -%}
+        </ul>
+        </div>
+        {% endif %}
         {% endwith %}
 
         <hr>
         <input type="hidden" name="formType" value="register">
-        <input type="submit" value="Register!">
+        <input type="submit" class="btn btn-success mb-5" value="Register!">
     </form>
 
 
@@ -79,19 +82,23 @@
         <label for="passwordLogin">Password:</label>
         <input class="form-control" type="password" name="passwordLogin">
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class=flashes>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
+        {% with errors = get_flashed_messages(category_filter=["login"]) %}
+        {% if errors %}
+        <div class="alert-message block-message error">
+        <a class="close" href="#">×</a>
+        <ul>
+            {%- for msg in errors %}
+            <li>{{ msg }}</li>
+            {% endfor -%}
+        </ul>
+        </div>
+        {% endif %}
         {% endwith %}
+
 
         <hr>
         <input type="hidden" name="formType" value="login">
-        <input type="submit" value="Log In!">
+        <input type="submit" class="btn btn-info mb-5" value="Log In!">
     </form>
 </div>
 

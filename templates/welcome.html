@@ -67,7 +67,6 @@
                         <input type="hidden" name='like' value={{tweet['id']}}>
                         <input type="submit" value="Like" name='likeTweet' class="btn btn-success">
                     </form>
-                    <h6>likes: {{likesNum}}</h6>
                     <form class="form-group" action="/tweets/{{tweet['id']}}/delete" method="POST">
                         <input type="hidden" name="delete" value={{tweet['id']}}>
                         <input type="submit" value="Delete" name='deleteTweet' class="btn btn-danger">
