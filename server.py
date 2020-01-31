@@ -159,7 +159,7 @@ def login():
             return redirect('/dashboard')
 
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
 
     if not session['id']:
@@ -221,6 +221,31 @@ def delete_tweet(id):
     tweet_delete = mysql.query_db(f"DELETE FROM tweets WHERE id={id};")
 
 
+    return redirect('/dashboard')
+
+
+# edit route here
+@app.route('/tweets/<id>/edit', methods=['POST'])
+def edit_tweet(id):
+    return render_template('edit.html')
+    
+
+# update route here
+@app.route('/tweets/<id>/update', methods=['POST'])
+def update_tweet(id):
+
+    tweet = request.form['tweet']
+    mysql = connectToMySQL("dojo_tweets")
+    data = {
+        'tweet': tweet,
+        'id': id
+    }
+    query = "UPDATE tweets SET tweet = %(tweet)s WHERE user_id=%(id)s;"
+
+    if len(request.form['tweet']) < 1 or len(request.form['tweet'] > 255):
+        flash('Invalid tweet length')
+    else:    
+        tweet_edit = mysql.query_db(query, data)
     return redirect('/dashboard')
     
 
