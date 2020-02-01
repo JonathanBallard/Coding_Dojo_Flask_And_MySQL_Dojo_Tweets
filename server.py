@@ -165,12 +165,61 @@ def dashboard():
     if not session['id']:
         return redirect('/')
 
+    mysql = connectToMySQL("dojo_tweets")
+    userFriends = mysql.query_db(f"SELECT followed_user_id FROM follows WHERE follower_user_id = {session['id']} OR user_id = {session['id']}")
+
+
     # return list of tweets for welcome.html
     mysql = connectToMySQL("dojo_tweets")
-    tweetList = mysql.query_db(f"SELECT * FROM tweets")
+    # tweetList = mysql.query_db(f"SELECT * FROM tweets")   #SELECT ALL TWEETS
     # tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")  #ONLY SHOW TWEETS THAT PERSON MADE
 
+    # print('USERFRIENDS =======______________------------____________=====', userFriends)
+    # print('LENGHT OF USERFRIENDS =======______________------------____________=====', len(userFriends))
+    # print('USERFRIENDS[0] =======______________------------____________=====', userFriends[0])
+    # print('USERFRIENDS[1] =======______________------------____________=====', userFriends[1])
+    # print('USERFRIENDS[2] =======______________------------____________=====', userFriends[2])
+
+    friendsList = list()
     
+
+    for index in range(len(userFriends)):
+        print('INDEX+++++++++++++++++++++++++++++++++', index)
+        # friendsList[index].append(userFriends[index]['followed_user_id'])
+        x = userFriends[index]['followed_user_id']
+
+    # friendsList = [4,6]
+
+    # tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id IN {friendsList}")  #SELECT MY AND FRIENDS TWEETS
+    # print('TWEETLIST =======__________________________________=====', tweetList)
+
+
+    
+    tweetList = mysql.query_db(f"SELECT * FROM tweets JOIN users ON tweets.user_id = users.id JOIN follows ON users.id = follows.user_id")  #SELECT MY AND FRIENDS TWEETS
+    print('TWEETLIST =======__________________________________=====', tweetList)
+
+    tweetSet = list()
+    tweetTime = list()
+    tweetTuple = ()
+    friendsList.append(session['id'])
+    friendsList.append(session['id'])
+
+
+    for index in range(len(tweetList)):
+        if tweetList[index]['follower_user_id'] == session['id'] or tweetList[index]['user_id'] == session['id']:
+            friendsList.append(tweetList[index]['followed_user_id'])
+            tweetSet.append(tweetList[index]['tweet'])
+            tweetTime.append(tweetList[index]['created_at'])
+
+
+    mysql = connectToMySQL("dojo_tweets")
+    if len(friendsList):
+        tweetTuple = tuple(friendsList)
+    else:
+        tweetTuple = tuple()
+
+    tweetList2 = mysql.query_db(f"SELECT * FROM tweets WHERE user_id IN {tweetTuple}")
+
     # tweetList = mysql.query_db(f"SELECT tweets.id, tweets.tweet, tweets.created_at, tweets.updated_at, tweets.user_id, follows.followed_user_id, follows.follower_user_id FROM tweets JOIN users ON tweets.user_id = users.id JOIN follows ON users.id = follows.user_id WHERE tweets.user_id IN {followed_users} GROUP BY tweets.id")
 
 
@@ -180,7 +229,7 @@ def dashboard():
     likesNum = mysql.query_db("SELECT COUNT(id) FROM likes GROUP BY tweet_id")
     print('LIKESNUM=======55555555555555555555555555=====', likesNum)
 
-    return render_template('welcome.html', tweetList = tweetList, likesNum = likesNum)
+    return render_template('welcome.html', tweetList = tweetList2, likesNum = likesNum, tweetSet = tweetSet, tweetTime = tweetTime)
 
 
 
