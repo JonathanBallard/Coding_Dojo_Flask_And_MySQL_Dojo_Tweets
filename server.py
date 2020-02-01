@@ -222,9 +222,19 @@ def tweet_create():
 @app.route('/tweets/<id>/delete', methods=['POST'])
 def delete_tweet(id):
     print('DELETE ID----------*******************************************', id)
-    mysql = connectToMySQL("dojo_tweets")
-    tweet_delete = mysql.query_db(f"DELETE FROM tweets WHERE id={id};")
+    
 
+    mysql = connectToMySQL("dojo_tweets")
+    tweet_check = mysql.query_db(f"SELECT user_id FROM tweets WHERE id={id};")
+
+    print('TWEET CHECK ID----------*******************************************', tweet_check)
+
+    # if userId of tweet = session['id]
+    if tweet_check[0]['user_id'] == session['id']:
+        mysql = connectToMySQL("dojo_tweets")
+        tweet_delete = mysql.query_db(f"DELETE FROM tweets WHERE id={id};")
+    else:
+        flash('invalid user')
 
     return redirect('/dashboard')
 
