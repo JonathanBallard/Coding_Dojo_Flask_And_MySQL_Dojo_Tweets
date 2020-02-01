@@ -24,7 +24,7 @@
 
     <h1>Edit Tweet</h1>
 
-    <form class="form-group" action="/tweets/create" method="POST">
+    <form class="form-group" action="/tweets/{{ tweetId }}/update" method="POST">
     
         <h3>Edit Your Tweet:</h3>
         <textarea name="tweet" cols="30" rows="10" placeholder="tweet"></textarea>

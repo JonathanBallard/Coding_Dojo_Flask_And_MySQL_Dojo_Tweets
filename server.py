@@ -1,3 +1,10 @@
+# TODO
+# check session['id']
+# DUPLICATES on EDIT
+
+
+
+
 from flask import Flask, render_template, request, redirect, session, flash
 from mysqlconnection import connectToMySQL    # import the function that will return an instance of a connection
 import re
@@ -174,14 +181,8 @@ def dashboard():
     # tweetList = mysql.query_db(f"SELECT * FROM tweets")   #SELECT ALL TWEETS
     # tweetList = mysql.query_db(f"SELECT * FROM tweets WHERE user_id = {session['id']}")  #ONLY SHOW TWEETS THAT PERSON MADE
 
-    # print('USERFRIENDS =======______________------------____________=====', userFriends)
-    # print('LENGHT OF USERFRIENDS =======______________------------____________=====', len(userFriends))
-    # print('USERFRIENDS[0] =======______________------------____________=====', userFriends[0])
-    # print('USERFRIENDS[1] =======______________------------____________=====', userFriends[1])
-    # print('USERFRIENDS[2] =======______________------------____________=====', userFriends[2])
 
     friendsList = list()
-    
 
     for index in range(len(userFriends)):
         print('INDEX+++++++++++++++++++++++++++++++++', index)
@@ -198,8 +199,6 @@ def dashboard():
     tweetList = mysql.query_db(f"SELECT * FROM tweets JOIN users ON tweets.user_id = users.id JOIN follows ON users.id = follows.user_id")  #SELECT MY AND FRIENDS TWEETS
     print('TWEETLIST =======__________________________________=====', tweetList)
 
-    tweetSet = list()
-    tweetTime = list()
     tweetTuple = ()
     friendsList.append(session['id'])
     friendsList.append(session['id'])
@@ -208,8 +207,6 @@ def dashboard():
     for index in range(len(tweetList)):
         if tweetList[index]['follower_user_id'] == session['id'] or tweetList[index]['user_id'] == session['id']:
             friendsList.append(tweetList[index]['followed_user_id'])
-            tweetSet.append(tweetList[index]['tweet'])
-            tweetTime.append(tweetList[index]['created_at'])
 
 
     mysql = connectToMySQL("dojo_tweets")
@@ -229,7 +226,7 @@ def dashboard():
     likesNum = mysql.query_db("SELECT COUNT(id) FROM likes GROUP BY tweet_id")
     print('LIKESNUM=======55555555555555555555555555=====', likesNum)
 
-    return render_template('welcome.html', tweetList = tweetList2, likesNum = likesNum, tweetSet = tweetSet, tweetTime = tweetTime)
+    return render_template('welcome.html', tweetList = tweetList2, likesNum = likesNum)
 
 
 
@@ -291,22 +288,23 @@ def delete_tweet(id):
 # edit route here
 @app.route('/tweets/<id>/edit', methods=['POST'])
 def edit_tweet(id):
-    return render_template('edit.html')
+    return render_template('edit.html', tweetId = int(id))
     
 
 # update route here
 @app.route('/tweets/<id>/update', methods=['POST'])
 def update_tweet(id):
 
+    t_id = int(id)
     tweet = request.form['tweet']
     mysql = connectToMySQL("dojo_tweets")
     data = {
         'tweet': tweet,
-        'id': id
+        'id': t_id
     }
     query = "UPDATE tweets SET tweet = %(tweet)s WHERE id=%(id)s;"
-
-    if len(request.form['tweet']) < 1 or len(request.form['tweet'] > 255):
+    print('leng request.form tweet55555555555555555555555555555', len(request.form['tweet']))
+    if len(request.form['tweet']) < 1 or len(request.form['tweet']) > 255:
         flash('Invalid tweet length')
     else:    
         tweet_edit = mysql.query_db(query, data)
